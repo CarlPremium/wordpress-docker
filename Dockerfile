@@ -10,8 +10,11 @@ RUN apt-get update && apt-get install -y \
 # PHP extensions
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 
-# Remove ALL nginx defaults AFTER install
-RUN rm -rf /etc/nginx/*
+# Remove nginx site configs but KEEP core files like mime.types
+RUN rm -rf /etc/nginx/sites-enabled \
+           /etc/nginx/sites-available \
+           /etc/nginx/conf.d
+
 
 # Recreate nginx folders
 RUN mkdir -p /etc/nginx/conf.d
@@ -30,6 +33,7 @@ RUN chown -R www-data:www-data /var/www/html
 EXPOSE 80
 
 CMD ["sh", "-c", "php-fpm -D && nginx -g 'daemon off;'"]
+
 
 
 
