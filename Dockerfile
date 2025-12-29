@@ -1,16 +1,18 @@
-FROM php:8.2-apache
+FROM php:8.2-fpm
 
-# Remove all MPMs first (important)
-RUN rm -f /etc/apache2/mods-enabled/mpm_*.load
+# Install system deps
+RUN apt-get update && apt-get install -y \
+    nginx \
+    curl \
+    unzip \
+ && rm -rf /var/lib/apt/lists/*
 
-# Enable ONLY prefork (PHP mod_php requires this)
-RUN a2enmod mpm_prefork
-
-# PHP extensions
+# PHP extensions required by WordPress
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 
-# Apache rewrite
-RUN a2enmod rewrite
+# Nginx config
+RUN rm /etc/nginx/sites-enabled/default
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Install WordPress
 WORKDIR /var/www/html
@@ -21,5 +23,10 @@ RUN curl -fsSL https://wordpress.org/latest.tar.gz \
 RUN chown -R www-data:www-data /var/www/html
 
 EXPOSE 80
+
+# Start PHP-FPM + Nginx
+CMD ["sh", "-c", "php-fpm -D && nginx -g 'daemon off;'"]
+
+
 
 
