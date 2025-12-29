@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 
 # Nginx config
-RUN rm /etc/nginx/sites-enabled/default
+RUN rm -rf /etc/nginx/sites-enabled/* /etc/nginx/conf.d/*
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Install WordPress
@@ -26,6 +26,7 @@ EXPOSE 80
 
 # Start PHP-FPM + Nginx
 CMD ["sh", "-c", "php-fpm -D && nginx -g 'daemon off;'"]
+
 
 
 
